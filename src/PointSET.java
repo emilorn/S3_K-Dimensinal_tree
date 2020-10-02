@@ -17,48 +17,71 @@ import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Out;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.SET;
 
 public class PointSET {
     // construct an empty set of points
+    SET point_set;
     public PointSET() {
+        point_set = new SET();
 
     }
 
     // is the set empty?
     public boolean isEmpty() {
-        return false;
+        return point_set.isEmpty();
     }
 
     // number of points in the set
     public int size() {
-        return 0;
+        return point_set.size();
     }
 
     // add the point p to the set (if it is not already in the set)
     public void insert(Point2D p) {
+        point_set.add(p);
     }
 
     // does the set contain the point p?
     public boolean contains(Point2D p) {
-        return false;
+
+        return point_set.contains(p);
     }
 
     // draw all of the points to standard draw
     public void draw() {
+        // "How hard can it be?"
+        // -Emil Örn K.
+
     }
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
+
         return null;
     }
 
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D p) {
+
         return p;
     }
 
+
+    //********************** Main here ****************************************
+
     public static void main(String[] args) {
-        In in = new In();
+        In input = new In(args[0]);
+        PointSET our_point_set = new PointSET();
+        int number_of_lines = input.readInt();
+        for(int x = 0; x < number_of_lines; x++){
+            continue;
+        }
+
+    }
+
+    /*public static void main(String[] args) {
+        In in = new In(args[0]);
         Out out = new Out();
         int nrOfRecangles = in.readInt();
         int nrOfPointsCont = in.readInt();
@@ -109,6 +132,6 @@ public class PointSET {
         }
 
         out.println();
-    }
+    }*/
 
 }

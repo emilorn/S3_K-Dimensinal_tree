@@ -70,6 +70,8 @@ public class KdTree {
         for (int i = 0; i < nrOfPointsNear; i++) {
             pointsNear[i] = new Point2D(in.readDouble(), in.readDouble());
         }
+
+
         KdTree set = new KdTree();
         for (int i = 0; !in.isEmpty(); i++) {
             double x = in.readDouble(), y = in.readDouble();
