@@ -1,4 +1,3 @@
-package s3;
 /******************************************************************************
  *  Compilation:  javac NearestNeighborVisualizer.java
  *  Execution:    java NearestNeighborVisualizer input.txt
@@ -15,6 +14,7 @@ package s3;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.StdDraw;
+
 
 public class NearestNeighborVisualizer {
 

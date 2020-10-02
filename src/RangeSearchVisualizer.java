@@ -1,5 +1,3 @@
-package s3;
-
 /******************************************************************************
  *  Compilation:  javac RangeSearchVisualizer.java
  *  Execution:    java RangeSearchVisualizer input.txt
@@ -18,6 +16,7 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
+
 
 public class RangeSearchVisualizer {
 
@@ -76,7 +75,7 @@ public class RangeSearchVisualizer {
             RectHV rect = new RectHV(Math.min(x0, x1), Math.min(y0, y1),
                                      Math.max(x0, x1), Math.max(y0, y1));
             
-//            RectHV wholeplane = new RectHV()
+            //RectHV wholeplane = new RectHV();
             // draw the points
             StdDraw.clear();
             StdDraw.setPenColor(StdDraw.BLACK);
@@ -91,6 +90,8 @@ public class RangeSearchVisualizer {
             // draw the range search results for brute-force data structure in red
             StdDraw.setPenRadius(.03);
             StdDraw.setPenColor(StdDraw.RED);
+
+
             for (Point2D p : brute.range(rect))
                 p.draw();
 
