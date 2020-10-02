@@ -11,20 +11,16 @@
  *
  *************************************************************************/
 
-import java.util.Arrays;
+import edu.princeton.cs.algs4.*;
 
-import edu.princeton.cs.algs4.Point2D;
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.Out;
-import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.SET;
+import java.util.Arrays;
+import java.util.Iterator;
 
 public class PointSET {
     // construct an empty set of points
-    SET point_set;
+    SET<Point2D> point_set;
     public PointSET() {
-        point_set = new SET();
-
+        point_set = new SET<>();
     }
 
     // is the set empty?
@@ -50,38 +46,70 @@ public class PointSET {
 
     // draw all of the points to standard draw
     public void draw() {
-        // "How hard can it be?"
-        // -Emil Örn K.
-
+        Iterator<Point2D> my_point_array = point_set.iterator();
+        while (my_point_array.hasNext()){
+            my_point_array.next().draw();
+        }
     }
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
+        SET<Point2D> points_in_rectangle = new SET<>();
+        Iterator<Point2D> my_point_array = point_set.iterator();
 
-        return null;
+        while (my_point_array.hasNext()){
+            Point2D current_point = my_point_array.next();
+            if (rect.contains(current_point)){
+                points_in_rectangle.add(current_point);
+            }
+        }
+        return points_in_rectangle;
     }
 
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D p) {
+        Iterator<Point2D> my_point_array = point_set.iterator();
 
-        return p;
+        Point2D current_point = my_point_array.next();
+        double min_distance = p.distanceTo(current_point);
+        Point2D closest_point = current_point;
+
+        while (my_point_array.hasNext()){
+            current_point = my_point_array.next();
+            if (p.distanceTo(current_point) < min_distance){
+                min_distance = p.distanceTo(current_point);
+                closest_point = current_point;
+            }
+        }
+        return closest_point;
     }
 
 
     //********************** Main here ****************************************
 
+//    public static void main(String[] args) {
+//        In input = new In(args[0]);
+//        PointSET our_point_set = new PointSET();
+//        int number_of_lines = input.readInt();
+//        for(int i = 0; i < number_of_lines; i++){
+//            double x = input.readDouble();
+//            double y = input.readDouble();
+//            Point2D point = new Point2D(x,y);
+//            our_point_set.insert(point);
+//        }
+//
+//        RectHV my_rectangle = new RectHV(0.3, 0.8, 1.0, 1.0);
+//        Iterable<Point2D> my_square_points = our_point_set.range(my_rectangle);
+//
+//        Point2D test_point = new Point2D(2.2, 3.0);
+//        Point2D fancy_point = our_point_set.nearest(test_point);
+//        StdOut.println();
+//
+//        our_point_set.draw();
+//    }
+
     public static void main(String[] args) {
-        In input = new In(args[0]);
-        PointSET our_point_set = new PointSET();
-        int number_of_lines = input.readInt();
-        for(int x = 0; x < number_of_lines; x++){
-            continue;
-        }
-
-    }
-
-    /*public static void main(String[] args) {
-        In in = new In(args[0]);
+        In in = new In();
         Out out = new Out();
         int nrOfRecangles = in.readInt();
         int nrOfPointsCont = in.readInt();
@@ -132,6 +160,6 @@ public class PointSET {
         }
 
         out.println();
-    }*/
+    }
 
 }
