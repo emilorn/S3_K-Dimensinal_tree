@@ -91,6 +91,8 @@ public class KdTree {
 
     // draw all of the points to standard draw
     public void draw() {
+        RectHV rect = new RectHV(0.0, 0.0, 1.0, 1.0);
+        StdDraw.enableDoubleBuffering();
 
     }
 
