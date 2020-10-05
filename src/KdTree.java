@@ -36,16 +36,16 @@ public class KdTree {
     }
 
     // add the point p to the set (if it is not already in the set)
-    public void insert(Point2D p) {
+    public void insert(Point2D point) {
         if (root != null){
-            find_position(p);
+            find_position(point);
         } else {
-            root = new Node(p);
+            root = new Node(point);
         }
         size++;
     }
 
-    private void find_position(Point2D p) {
+    private void find_position(Point2D point) {
         Node next_node = root;
         Node prev_node = null;
         boolean vertical = true;
@@ -54,10 +54,10 @@ public class KdTree {
         while (next_node != null){
             prev_node = next_node;
             if (vertical) {
-                left = p.x() < next_node.value.x();
+                left = point.x() < next_node.value.x();
                 vertical = false;
             } else {
-                left = p.y() < next_node.value.y();
+                left = point.y() < next_node.value.y();
                 vertical = true;
             }
             if (left) {
@@ -67,27 +67,27 @@ public class KdTree {
             }
         }
         if (left){
-            prev_node.left = new Node(p);
+            prev_node.left = new Node(point);
         } else {
-            prev_node.right = new Node(p);
+            prev_node.right = new Node(point);
         }
     }
 
     // does the set contain the point p?
-    public boolean contains(Point2D p) {
+    public boolean contains(Point2D point) {
         Node next_node = root;
         boolean vertical = true;
         boolean left;
 
         while (next_node != null){
-            if (next_node.value.x() == p.x() && next_node.value.y() == p.y()) {
+            if (next_node.value.x() == point.x() && next_node.value.y() == point.y()) {
                 return true;
             }
             if (vertical) {
-                left = p.x() < next_node.value.x();
+                left = point.x() < next_node.value.x();
                 vertical = false;
             } else {
-                left = p.y() < next_node.value.y();
+                left = point.y() < next_node.value.y();
                 vertical = true;
             }
             if (left) {
@@ -146,8 +146,8 @@ public class KdTree {
 
 
     // a nearest neighbor in the set to p; null if set is empty
-    public Point2D nearest(Point2D p) {
-        return nearest_recursive(p, root, true, root.value);
+    public Point2D nearest(Point2D point) {
+        return nearest_recursive(point, root, true, root.value);
     }
 
     private Point2D nearest_recursive(Point2D p, Node next_node, boolean vertical, Point2D nearest_point) {
