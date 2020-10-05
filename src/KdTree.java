@@ -2,8 +2,6 @@
 /*************************************************************************
  *************************************************************************/
 
-import java.util.Arrays;
-
 import edu.princeton.cs.algs4.*;
 
 public class KdTree {
@@ -12,15 +10,18 @@ public class KdTree {
         Node left;
         Node right;
         Point2D value;
+
         private Node (Point2D value){
             this.value = value;
             this.left = null;
             this.right = null;
         }
-
     }
 
     Node root;
+    int size = 0;
+    int MIN = 0;
+    int MAX = 1;
 
     public KdTree() {
 
@@ -29,63 +30,98 @@ public class KdTree {
 
     // is the set empty?
     public boolean isEmpty() {
-        return false;
+        return root == null;
     }
 
     // number of points in the set
     public int size() {
-        return 0;
+        return size;
     }
 
     // add the point p to the set (if it is not already in the set)
     public void insert(Point2D p) {
         if (root != null){
-            Node new_node = new Node(p);
-            find_position(new_node);
+            find_position(p);
         } else {
             root = new Node(p);
         }
+        size++;
     }
 
-    private void find_position(Node new_node) {
+//    private Node find_parent(Point2D p){
+//        Node prev_node = null;
+//        Node next_node = root;
+//        boolean vertical = true;
+//        boolean left;
+//        while (next_node != null){
+//            prev_node = next_node;
+//            if (vertical) {
+//                left = p.x() <= next_node.value.x();
+//                vertical = false;
+//            } else {
+//                left = p.y() <= next_node.value.y();
+//                vertical = true;
+//            }
+//            if (left) {
+//                next_node = next_node.left;
+//            } else {
+//                next_node = next_node.right;
+//            }
+//        }
+//        return prev_node;
+//    }
+
+    private void find_position(Point2D p) {
         Node next_node = root;
         Node prev_node = null;
         boolean vertical = true;
         boolean left = true;
-        
+
         while (next_node != null){
             prev_node = next_node;
             if (vertical) {
-
-                if (new_node.value.x() <= next_node.value.x()){
-                    next_node = next_node.left;
-                    left = true;
-                } else {
-                    next_node = next_node.right;
-                    left = false;
-                }
+                left = p.x() < next_node.value.x();
                 vertical = false;
             } else {
-                if (new_node.value.y() <= next_node.value.y()){
-                    next_node = next_node.left;
-                    left = true;
-                } else {
-                    next_node = next_node.right;
-                    left = false;
-                }
+                left = p.y() < next_node.value.y();
                 vertical = true;
+            }
+            if (left) {
+                next_node = next_node.left;
+            } else {
+                next_node = next_node.right;
             }
         }
         if (left){
-            prev_node.left = new_node;
+            prev_node.left = new Node(p);
         } else {
-            prev_node.right = new_node;
+            prev_node.right = new Node(p);
         }
-
     }
 
     // does the set contain the point p?
     public boolean contains(Point2D p) {
+        Node next_node = root;
+        boolean vertical = true;
+        boolean left;
+
+        while (next_node != null){
+            if (next_node.value.x() == p.x() && next_node.value.y() == p.y()) {
+                return true;
+            }
+            if (vertical) {
+                left = p.x() < next_node.value.x();
+                vertical = false;
+            } else {
+                left = p.y() < next_node.value.y();
+                vertical = true;
+            }
+            if (left) {
+                next_node = next_node.left;
+            } else {
+                next_node = next_node.right;
+            }
+        }
         return false;
     }
 
@@ -98,12 +134,72 @@ public class KdTree {
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
-        return null;
+        SET<Point2D> points_in_rectangle = new SET<>();
+        return range_recursive(points_in_rectangle, rect, root, true);
     }
+
+    private SET<Point2D> range_recursive (SET<Point2D> points_in_rectangle, RectHV rect, Node next_node, boolean vertical){
+
+        boolean in_left, in_right, both;
+
+        if (next_node == null){
+            return points_in_rectangle;
+        }
+
+        if (rect.contains(next_node.value)){
+            points_in_rectangle.add(next_node.value);
+        }
+            both = rect.distanceSquaredTo(next_node.value) == 0;
+            if (both) { in_left = in_right = true; }
+            else {
+                if (vertical) {
+                    in_left = rect.xmax() < next_node.value.x();
+                    in_right = rect.xmin() > next_node.value.x();
+                } else {
+                    in_left = rect.ymax() < next_node.value.x();
+                    in_right = rect.ymin() > next_node.value.x();
+                }
+            }
+            vertical = !vertical;
+
+        if (in_left){
+            points_in_rectangle = range_recursive(points_in_rectangle, rect, next_node.left, vertical);
+        }
+        if (in_right){
+            points_in_rectangle = range_recursive(points_in_rectangle, rect, next_node.right, vertical);
+        }
+        return points_in_rectangle;
+    }
+
 
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D p) {
-        return p;
+        return nearest_recursive(p, root, root, true);
+    }
+
+    private Point2D nearest_recursive(Point2D p, Node next_node, Node prev_node, boolean vertical) {
+        boolean in_left;
+        Point2D nearest_point;
+        if (next_node == null){
+            return prev_node.value;
+        } else if (p.distanceSquaredTo(next_node.value) >= p.distanceSquaredTo(next_node.left.value) && p.distanceSquaredTo(next_node.value) >= p.distanceSquaredTo(next_node.right.value)){
+            return next_node.value;
+        }
+
+        if (vertical) {
+            in_left = p.x() < next_node.value.x();
+        } else {
+            in_left = p.y() < next_node.value.y();
+        }
+
+        vertical = !vertical;
+        prev_node = next_node;
+        if (in_left){
+            nearest_point = nearest_recursive(p, next_node.left, prev_node, vertical);
+        } else {
+            nearest_point = nearest_recursive(p, next_node.right, prev_node, vertical);
+        }
+        return nearest_point;
     }
 
     /*******************************************************************************
@@ -111,25 +207,26 @@ public class KdTree {
      ******************************************************************************/
     public static void main(String[] args) {
         In input = new In(args[0]);
-        KdTree our_kdtree = new KdTree();
+        KdTree our_kd_tree = new KdTree();
         int number_of_lines = input.readInt();
         for(int i = 0; i < number_of_lines; i++){
             double x = input.readDouble();
             double y = input.readDouble();
             Point2D point = new Point2D(x,y);
-            our_kdtree.insert(point);
+            our_kd_tree.insert(point);
         }
-        StdOut.println();
+        Point2D point_to_find = new Point2D(0.2,	0.8);
+        StdOut.println(our_kd_tree.contains(point_to_find));
+        StdOut.println(our_kd_tree.size);
+        RectHV my_rectangle = new RectHV(0.2, 0.2, 0.4, 0.6);
+        Iterable<Point2D> my_square_points = our_kd_tree.range(my_rectangle);
 
-        RectHV my_rectangle = new RectHV(0.3, 0.8, 1.0, 1.0);
-        Iterable<Point2D> my_square_points = our_kdtree.range(my_rectangle);
-
-        Point2D test_point = new Point2D(2.2, 3.0);
-        Point2D fancy_point = our_kdtree.nearest(test_point);
-        StdOut.println();
-
-        our_kdtree.draw();
+        Point2D test_point = new Point2D(0.3, 0.7);
+        Point2D fancy_point = our_kd_tree.nearest(test_point);
+        StdOut.println(fancy_point);
+//        our_kd_tree.draw();
     }
+
 //    public static void main(String[] args) {
 //        In in = new In();
 //        Out out = new Out();
