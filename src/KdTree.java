@@ -4,17 +4,21 @@
 
 import edu.princeton.cs.algs4.*;
 
+import java.awt.*;
+
 public class KdTree {
 
     private static class Node {
         Node left;
         Node right;
+        Node parent;
         Point2D value;
 
-        private Node (Point2D value){
+        private Node (Point2D value, Node parent){
             this.value = value;
             this.left = null;
             this.right = null;
+            this.parent = parent;
         }
     }
 
@@ -38,14 +42,14 @@ public class KdTree {
     // add the point p to the set (if it is not already in the set)
     public void insert(Point2D point) {
         if (root != null){
-            find_position(point);
+            insert_into_position(point);
         } else {
-            root = new Node(point);
+            root = new Node(point, null);
         }
         size++;
     }
 
-    private void find_position(Point2D point) {
+    private void insert_into_position(Point2D point) {
         Node next_node = root;
         Node prev_node = null;
         boolean vertical = true;
@@ -67,9 +71,9 @@ public class KdTree {
             }
         }
         if (left){
-            prev_node.left = new Node(point);
+            prev_node.left = new Node(point, prev_node);
         } else {
-            prev_node.right = new Node(point);
+            prev_node.right = new Node(point, prev_node);
         }
     }
 
@@ -101,8 +105,97 @@ public class KdTree {
 
     // draw all of the points to standard draw
     public void draw() {
-        RectHV rect = new RectHV(0.0, 0.0, 1.0, 1.0);
-        StdDraw.enableDoubleBuffering();
+
+        StdDraw.setCanvasSize(800,800);
+//        StdDraw.line(0.5,0.5,1,1);
+//        StdDraw.circle(0.5,0.5,.01);
+
+//        StdDraw.line(0,0.5,1,0.5);
+//        RectHV rect = new RectHV(0.0, 0.0, 1.0, 1.0);
+//        StdDraw.enableDoubleBuffering();
+//        StdDraw.circle(0.5,0.5,.5);
+//        StdDraw.line(0,0.5,1,0.5);
+        Font font = new Font("Comic Sans MS", Font.ITALIC, 10);
+        StdDraw.setFont(font);
+//        StdDraw.setPenColor(StdDraw.RED);
+//        StdDraw.line(root.value.x(), 0, root.value.x(), 1);
+        draw_recursive(root, false);
+    }
+
+    private void draw_recursive(Node current_node, boolean vertical){
+        if(current_node != null){
+            StdDraw.setPenColor(StdDraw.BLACK);
+            StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
+            StdDraw.circle(current_node.value.x(), current_node.value.y(), .01);
+
+            if(current_node.parent != null){
+                if(vertical){
+                    double bottom = 0;
+                    double top = current_node.parent.value.y();
+
+                    StdDraw.setPenColor(StdDraw.RED);
+                    //StdDraw.line(current_node.value.x(), current_node.parent.value.y(), current_node.value.x(), current_node.value.y());
+                }
+
+                else{
+                    StdDraw.setPenColor(StdDraw.BLUE);
+                    //StdDraw.line(current_node.value.x(), 0, current_node.value.x(), 1);
+                }
+            }
+            else{
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.line(root.value.x(), 0, root.value.x(), 1);
+            }
+
+
+
+
+            draw_recursive(current_node.left, !vertical);
+            draw_recursive(current_node.right, !vertical);
+        }
+    }
+    private void draw_recursive2(Node current_node, boolean vertical){
+
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
+        StdDraw.circle(current_node.value.x(), current_node.value.y(), .01);
+        if(current_node.left != null){
+            if(vertical){
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.line(current_node.left.value.x(), current_node.value.y(), current_node.left.value.x(), 0);
+            }
+            else{
+                double x = 0;
+                StdDraw.setPenColor(StdDraw.BLUE);
+                if(current_node.value.x() > root.value.x()){
+                    x = root.value.x();
+                }
+                StdDraw.line(x, current_node.left.value.y(), current_node.value.x(), current_node.left.value.y());
+            }
+            draw_recursive2(current_node.left, !vertical);
+        }
+        if(current_node.right != null){
+            if(vertical){
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.line(current_node.right.value.x(), current_node.value.y(), current_node.right.value.x(), 1);
+            }
+            else{
+                double x = 1;
+                StdDraw.setPenColor(StdDraw.BLUE);
+                if(current_node.value.x() < root.value.x()){
+                    x = root.value.x();
+                }
+                StdDraw.line(x, current_node.right.value.y(), current_node.value.x(), current_node.right.value.y());
+            }
+            draw_recursive2(current_node.right, !vertical);
+        }
+
+
+        StdOut.println(current_node.value);
+
+
+
+
     }
 
     // all points in the set that are inside the rectangle
@@ -206,7 +299,8 @@ public class KdTree {
         StdOut.println(fancy_point);
 
 
-//        our_kd_tree.draw();
+        StdOut.println("Draw test begins here");
+        our_kd_tree.draw();
     }
 
 //    public static void main(String[] args) {
