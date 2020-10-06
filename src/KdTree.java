@@ -109,22 +109,19 @@ public class KdTree {
     public void draw() {
 
         StdDraw.setCanvasSize(800,800);
-//        StdDraw.line(0.5,0.5,1,1);
-//        StdDraw.circle(0.5,0.5,.01);
+        StdDraw.setXscale(-0.05, 1.05);
+        StdDraw.setYscale(-0.05, 1.05);
+        StdDraw.rectangle(0.5,0.5,0.5,0.5);
 
-//        StdDraw.line(0,0.5,1,0.5);
-//        RectHV rect = new RectHV(0.0, 0.0, 1.0, 1.0);
-//        StdDraw.enableDoubleBuffering();
-//        StdDraw.circle(0.5,0.5,.5);
-//        StdDraw.line(0,0.5,1,0.5);
+
         Font font = new Font("Comic Sans MS", Font.ITALIC, 10);
         StdDraw.setFont(font);
 //        StdDraw.setPenColor(StdDraw.RED);
 //        StdDraw.line(root.value.x(), 0, root.value.x(), 1);
-        draw_recursive(root, false);
+        draw_recursive(root);
     }
 
-    private void draw_recursive(Node current_node, boolean vertical){
+    private void draw_recursive(Node current_node){
         double top = 1.0;
         double bottom = 0.0;
         double left = 0.0;
@@ -133,99 +130,119 @@ public class KdTree {
         if(current_node != null){
             StdDraw.setPenColor(StdDraw.BLACK);
             StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
-            StdDraw.circle(current_node.value.x(), current_node.value.y(), .01);
+            StdDraw.circle(current_node.value.x(), current_node.value.y(), .007);
 
             if(current_node.parent != null){
-                if(vertical){
+                if(current_node.vertical){
                     StdDraw.setPenColor(StdDraw.RED);
-                    //StdDraw.line(current_node.value.x(), current_node.parent.value.y(), current_node.value.x(), current_node.value.y());
-                }
-
-                else{
-                    StdDraw.setPenColor(StdDraw.BLUE);
                     if(current_node == current_node.parent.left){
                         top = current_node.parent.value.y();
-                        bottom = 0;
-                        if (current_node.value.x() == 0.52)
-                        {
+                        if(current_node.value.x() == 0.69){
                             StdOut.println();
                         }
                         Node next = current_node.parent.parent.parent;
                         double shortest_distance = 1;
+                        double nearest_y = 1;
                         while (next != null){
-                            if (!next.vertical && shortest_distance > Math.abs(next.value.y() - current_node.value.y())){
-                                bottom = Math.min(next.value.y(), bottom);
+                            if (!next.vertical && shortest_distance > Math.abs(next.value.y() - current_node.value.y())
+                            && next.value.y() < current_node.value.y()){
                                 shortest_distance = Math.abs(next.value.y() - current_node.value.y());
+                                nearest_y = next.value.y();
                             }
                             next = next.parent;
                         }
+                        if(current_node.value.y() > shortest_distance){
+                            bottom = nearest_y;
+                        }
+
                     }
+
                     else if (current_node == current_node.parent.right){
+
+                        if(current_node.value.x() == 0.69){
+                            StdOut.println();
+                        }
                         bottom = current_node.parent.value.y();
-                        top = 1;
+
+
                         Node next = current_node.parent.parent.parent;
+                        double shortest_distance = 0;
+                        double nearest_y = 1;
                         while (next != null){
-                            if(!next.vertical){
-                                top = Math.min(next.value.y(), top);
+                            if (!next.vertical && shortest_distance < Math.abs(next.value.y() - current_node.value.y())
+                                    && next.value.y() > current_node.value.y()){
+                                shortest_distance = Math.abs(next.value.y() - current_node.value.y());
+                                nearest_y = next.value.y();
+                            }
+                            if(1 - current_node.value.y() > shortest_distance){
+                                top = nearest_y;
                             }
                             next = next.parent;
                         }
                     }
                     StdDraw.line(current_node.value.x(), bottom, current_node.value.x(), top);
+
                 }
 
-            }
+                else {
+                    StdDraw.setPenColor(StdDraw.BLUE);
+                    if (current_node == current_node.parent.right) {
+
+                        if(current_node.value.x() == 0.5){
+                            StdOut.println();
+                        }
+                        left = current_node.parent.value.x();
+                        Node next = current_node.parent.parent;
+                        double shortest_distance = 1;
+                        double nearest_x = 1;
+                        while (next != null) {
+                            if (next.vertical && shortest_distance > Math.abs(next.value.x() - current_node.value.x())
+                                    && next.value.x() >= current_node.value.x()) {
+                                shortest_distance = Math.abs(next.value.x() - current_node.value.x());
+                                nearest_x = next.value.x();
+                            }
+                            next = next.parent;
+                        }
+                        if(1 - current_node.value.x() > shortest_distance){
+                            right = nearest_x;
+                        }
+
+                    }
+                    else if (current_node == current_node.parent.left) {
+                        if(current_node.value.x() == 0.5){
+                            StdOut.println();
+                        }
+                        right  = current_node.parent.value.x();
+                        Node next = current_node.parent.parent;
+                        double shortest_distance = 1;
+                        double nearest_x = 1;
+                        while (next != null){
+                            if (next.vertical && shortest_distance > Math.abs(next.value.x() - current_node.value.x())
+                            && next.value.x() <= current_node.value.x()){
+                                shortest_distance = Math.abs(next.value.x() - current_node.value.x());
+                                nearest_x = next.value.x();
+                            }
+                            next = next.parent;
+                        }
+                        if(current_node.value.x() > shortest_distance){
+                            left = nearest_x;
+                        }
+                    }
+                    StdDraw.line(left, current_node.value.y(), right, current_node.value.y());
+
+                        }
+                    }
             else{
                 StdDraw.setPenColor(StdDraw.RED);
                 StdDraw.line(root.value.x(), 0, root.value.x(), 1);
             }
-            draw_recursive(current_node.left, !vertical);
-            draw_recursive(current_node.right, !vertical);
-        }
-    }
-    private void draw_recursive2(Node current_node, boolean vertical){
-
-        StdDraw.setPenColor(StdDraw.BLACK);
-        StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
-        StdDraw.circle(current_node.value.x(), current_node.value.y(), .01);
-        if(current_node.left != null){
-            if(vertical){
-                StdDraw.setPenColor(StdDraw.RED);
-                StdDraw.line(current_node.left.value.x(), current_node.value.y(), current_node.left.value.x(), 0);
-            }
-            else{
-                double x = 0;
-                StdDraw.setPenColor(StdDraw.BLUE);
-                if(current_node.value.x() > root.value.x()){
-                    x = root.value.x();
+            draw_recursive(current_node.left);
+            draw_recursive(current_node.right);
                 }
-                StdDraw.line(x, current_node.left.value.y(), current_node.value.x(), current_node.left.value.y());
+
+
+
             }
-            draw_recursive2(current_node.left, !vertical);
-        }
-        if(current_node.right != null){
-            if(vertical){
-                StdDraw.setPenColor(StdDraw.RED);
-                StdDraw.line(current_node.right.value.x(), current_node.value.y(), current_node.right.value.x(), 1);
-            }
-            else{
-                double x = 1;
-                StdDraw.setPenColor(StdDraw.BLUE);
-                if(current_node.value.x() < root.value.x()){
-                    x = root.value.x();
-                }
-                StdDraw.line(x, current_node.right.value.y(), current_node.value.x(), current_node.right.value.y());
-            }
-            draw_recursive2(current_node.right, !vertical);
-        }
-
-
-        StdOut.println(current_node.value);
-
-
-
-
-    }
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
