@@ -13,12 +13,14 @@ public class KdTree {
         Node right;
         Node parent;
         Point2D value;
+        boolean vertical;
 
-        private Node (Point2D value, Node parent){
+        private Node (Point2D value, Node parent, boolean vertical){
             this.value = value;
             this.left = null;
             this.right = null;
             this.parent = parent;
+            this.vertical = vertical;
         }
     }
 
@@ -44,7 +46,7 @@ public class KdTree {
         if (root != null){
             insert_into_position(point);
         } else {
-            root = new Node(point, null);
+            root = new Node(point, null, true);
         }
         size++;
     }
@@ -71,9 +73,9 @@ public class KdTree {
             }
         }
         if (left){
-            prev_node.left = new Node(point, prev_node);
+            prev_node.left = new Node(point, prev_node, vertical);
         } else {
-            prev_node.right = new Node(point, prev_node);
+            prev_node.right = new Node(point, prev_node, vertical);
         }
     }
 
@@ -123,6 +125,11 @@ public class KdTree {
     }
 
     private void draw_recursive(Node current_node, boolean vertical){
+        double top = 1.0;
+        double bottom = 0.0;
+        double left = 0.0;
+        double right = 1.0;
+
         if(current_node != null){
             StdDraw.setPenColor(StdDraw.BLACK);
             StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
@@ -130,26 +137,48 @@ public class KdTree {
 
             if(current_node.parent != null){
                 if(vertical){
-                    double bottom = 0;
-                    double top = current_node.parent.value.y();
-
                     StdDraw.setPenColor(StdDraw.RED);
                     //StdDraw.line(current_node.value.x(), current_node.parent.value.y(), current_node.value.x(), current_node.value.y());
                 }
 
                 else{
                     StdDraw.setPenColor(StdDraw.BLUE);
-                    //StdDraw.line(current_node.value.x(), 0, current_node.value.x(), 1);
+                    if(current_node == current_node.parent.left){
+                        top = current_node.parent.value.y();
+                        bottom = 0;
+                        if (current_node.value.x() == 0.52)
+                        {
+                            StdOut.println();
+                        }
+                        Node next = current_node.parent.parent.parent;
+                        double shortest_distance = 1;
+                        while (next != null){
+                            if (!next.vertical && shortest_distance > Math.abs(next.value.y() - current_node.value.y())){
+                                bottom = Math.min(next.value.y(), bottom);
+                                shortest_distance = Math.abs(next.value.y() - current_node.value.y());
+                            }
+                            next = next.parent;
+                        }
+                    }
+                    else if (current_node == current_node.parent.right){
+                        bottom = current_node.parent.value.y();
+                        top = 1;
+                        Node next = current_node.parent.parent.parent;
+                        while (next != null){
+                            if(!next.vertical){
+                                top = Math.min(next.value.y(), top);
+                            }
+                            next = next.parent;
+                        }
+                    }
+                    StdDraw.line(current_node.value.x(), bottom, current_node.value.x(), top);
                 }
+
             }
             else{
                 StdDraw.setPenColor(StdDraw.RED);
                 StdDraw.line(root.value.x(), 0, root.value.x(), 1);
             }
-
-
-
-
             draw_recursive(current_node.left, !vertical);
             draw_recursive(current_node.right, !vertical);
         }
