@@ -299,13 +299,19 @@ public class KdTree {
                 Recur node.left if left of y or below x
         Recur node.right if right of y or above x*/
 
-        Point2D left = nearest2_recursive(root.left, root, point);
-        Point2D right = nearest2_recursive(root.right, root, point);
+        Point2D left = nearest2_recursive(root.left, root.left, point);
+        Point2D right = nearest2_recursive(root.right, root.right, point);
 
         if(left.distanceSquaredTo(point) < right.distanceSquaredTo(point)){
-            return left;
+            if (left.distanceSquaredTo(point) < root.value.distanceSquaredTo(point)){
+                return left;
+            }
+            return root.value;
         }else{
-            return right;
+            if (right.distanceSquaredTo(point) < root.value.distanceSquaredTo(point)){
+                return right;
+            }
+            return root.value;
         }
     }
 
