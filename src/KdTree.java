@@ -52,24 +52,24 @@ public class KdTree {
     }
 
     private void insert_into_position(Point2D point) {
-        Node next_node = root;
+        Node current_node = root;
         Node prev_node = null;
         boolean vertical = true;
         boolean left = true;
 
-        while (next_node != null){
-            prev_node = next_node;
+        while (current_node != null){
+            prev_node = current_node;
             if (vertical) {
-                left = point.x() < next_node.value.x();
+                left = point.x() < current_node.value.x();
                 vertical = false;
             } else {
-                left = point.y() < next_node.value.y();
+                left = point.y() < current_node.value.y();
                 vertical = true;
             }
             if (left) {
-                next_node = next_node.left;
+                current_node = current_node.left;
             } else {
-                next_node = next_node.right;
+                current_node = current_node.right;
             }
         }
         if (left){
@@ -81,25 +81,22 @@ public class KdTree {
 
     // does the set contain the point p?
     public boolean contains(Point2D point) {
-        Node next_node = root;
-        boolean vertical = true;
+        Node current_node = root;
         boolean left;
 
-        while (next_node != null){
-            if (next_node.value.x() == point.x() && next_node.value.y() == point.y()) {
+        while (current_node != null){
+            if (current_node.value.x() == point.x() && current_node.value.y() == point.y()) {
                 return true;
             }
-            if (vertical) {
-                left = point.x() < next_node.value.x();
-                vertical = false;
+            if (current_node.vertical) {
+                left = point.x() < current_node.value.x();
             } else {
-                left = point.y() < next_node.value.y();
-                vertical = true;
+                left = point.y() < current_node.value.y();
             }
             if (left) {
-                next_node = next_node.left;
+                current_node = current_node.left;
             } else {
-                next_node = next_node.right;
+                current_node = current_node.right;
             }
         }
         return false;
@@ -137,9 +134,7 @@ public class KdTree {
                     StdDraw.setPenColor(StdDraw.RED);
                     if(current_node == current_node.parent.left){
                         top = current_node.parent.value.y();
-                        if(current_node.value.x() == 0.69){
-                            StdOut.println();
-                        }
+
                         Node next = current_node.parent.parent.parent;
                         double shortest_distance = 1;
                         double nearest_y = 1;
@@ -154,17 +149,10 @@ public class KdTree {
                         if(current_node.value.y() > shortest_distance){
                             bottom = nearest_y;
                         }
-
                     }
 
                     else if (current_node == current_node.parent.right){
-
-                        if(current_node.value.x() == 0.69){
-                            StdOut.println();
-                        }
                         bottom = current_node.parent.value.y();
-
-
                         Node next = current_node.parent.parent.parent;
                         double shortest_distance = 0;
                         double nearest_y = 1;
@@ -181,16 +169,11 @@ public class KdTree {
                         }
                     }
                     StdDraw.line(current_node.value.x(), bottom, current_node.value.x(), top);
-
                 }
 
                 else {
                     StdDraw.setPenColor(StdDraw.BLUE);
                     if (current_node == current_node.parent.right) {
-
-                        if(current_node.value.x() == 0.5){
-                            StdOut.println();
-                        }
                         left = current_node.parent.value.x();
                         Node next = current_node.parent.parent;
                         double shortest_distance = 1;
@@ -206,12 +189,8 @@ public class KdTree {
                         if(1 - current_node.value.x() > shortest_distance){
                             right = nearest_x;
                         }
-
                     }
                     else if (current_node == current_node.parent.left) {
-                        if(current_node.value.x() == 0.5){
-                            StdOut.println();
-                        }
                         right  = current_node.parent.value.x();
                         Node next = current_node.parent.parent;
                         double shortest_distance = 1;
@@ -239,46 +218,47 @@ public class KdTree {
             draw_recursive(current_node.left);
             draw_recursive(current_node.right);
                 }
-
-
-
             }
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
         SET<Point2D> points_in_rectangle = new SET<>();
-        return range_recursive(points_in_rectangle, rect, root, true);
+        return range_recursive(points_in_rectangle, rect, root);
     }
 
-    private SET<Point2D> range_recursive (SET<Point2D> points_in_rectangle, RectHV rect, Node next_node, boolean vertical){
+    private SET<Point2D> range_recursive (SET<Point2D> points_in_rectangle, RectHV rect, Node current_node){
 
         boolean in_left, in_right, both;
 
-        if (next_node == null){
+        if (current_node == null){
             return points_in_rectangle;
         }
 
-        if (rect.contains(next_node.value)){
-            points_in_rectangle.add(next_node.value);
+        if (rect.contains(current_node.value)){
+            points_in_rectangle.add(current_node.value);
         }
-            both = rect.distanceSquaredTo(next_node.value) == 0;
-            if (both) { in_left = in_right = true; }
-            else {
-                if (vertical) {
-                    in_left = rect.xmax() < next_node.value.x();
-                    in_right = rect.xmin() > next_node.value.x();
-                } else {
-                    in_left = rect.ymax() < next_node.value.x();
-                    in_right = rect.ymin() > next_node.value.x();
-                }
-            }
-            vertical = !vertical;
 
+        if (current_node.vertical){
+            both = rect.xmin() < current_node.value.x() && rect.xmax() > current_node.value.x();
+        } else {
+            both = rect.ymin() < current_node.value.y() && rect.ymax() > current_node.value.y();
+        }
+
+        if (both) { in_left = in_right = true; }
+        else {
+            if (current_node.vertical) {
+                in_left = rect.xmax() < current_node.value.x();
+                in_right = rect.xmin() > current_node.value.x();
+            } else {
+                in_left = rect.ymax() < current_node.value.y();
+                in_right = rect.ymin() > current_node.value.y();
+            }
+        }
         if (in_left){
-            points_in_rectangle = range_recursive(points_in_rectangle, rect, next_node.left, vertical);
+            points_in_rectangle = range_recursive(points_in_rectangle, rect, current_node.left);
         }
         if (in_right){
-            points_in_rectangle = range_recursive(points_in_rectangle, rect, next_node.right, vertical);
+            points_in_rectangle = range_recursive(points_in_rectangle, rect, current_node.right);
         }
         return points_in_rectangle;
     }
@@ -286,37 +266,64 @@ public class KdTree {
 
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D point) {
-        return nearest_recursive(point, root, true, root.value);
+        Point2D nearest_left = root.value;
+        Point2D nearest_right = root.value;
+        return nearest_recursive(point, root, nearest_left, nearest_right, true);
     }
 
-    private Point2D nearest_recursive(Point2D p, Node next_node, boolean vertical, Point2D nearest_point) {
-        boolean in_left;
-
-        if (p.distanceSquaredTo(next_node.value) > p.distanceSquaredTo(nearest_point)){
-            return nearest_point;
-        } else {
-            nearest_point = next_node.value;
-        }
-
-        if (vertical) {
-            in_left = p.x() < next_node.value.x();
-        } else {
-            in_left = p.y() < next_node.value.y();
-        }
-
-        vertical = !vertical; // for every depth of the recursion, orientation of the line is flipped
-        if (in_left){
-            if (next_node.left == null){
-                return next_node.value;
-            }
-            nearest_point = nearest_recursive(p, next_node.left, vertical, nearest_point);
-        } else {
-            if (next_node.right == null){
-                return next_node.value;
-            }
-            nearest_point = nearest_recursive(p, next_node.right, vertical, nearest_point);
-        }
-        return nearest_point;
+    private Point2D nearest_recursive(Point2D p, Node current_node, Point2D nearest_left, Point2D nearest_right, boolean is_left) {
+        return null;
+//        boolean on_left;
+//        RectHV current_square;
+//        if (is_left){
+//            if (p.distanceSquaredTo(current_node.value) < p.distanceSquaredTo(nearest_left)) {
+//                nearest_left = current_node.value;
+//            }
+//        } else {
+//            if (p.distanceSquaredTo(current_node.value) < p.distanceSquaredTo(nearest_right)) {
+//                nearest_right = current_node.value;
+//            }
+//        }
+//
+//        if (current_node.vertical) {
+//            on_left = p.x() <= current_node.value.x();
+//            if (on_left){
+//                current_square = new RectHV(current_node.value.x(), current_node.parent.value.y(), 1, 1);
+//            } else {
+//                current_square = new RectHV(0, 0, current_node.value.x(), current_node.parent.value.y());
+//            }
+//
+//        } else {
+//            on_left = p.y() <= current_node.value.y();
+//            if (on_left) {
+//                current_square = new RectHV(0, current_node.value.y(), current_node.parent.value.x(), 1);
+//            } else {
+//                current_square = new RectHV(current_node.parent.value.x(), 0, 1, current_node.value.y());
+//            }
+//        }
+//        if (current_square.distanceSquaredTo(p) < nearest_left.distanceSquaredTo(p)){
+//            nearest_left = current_node.value;
+//        }
+//        if (current_square.distanceSquaredTo(p) < nearest_right.distanceSquaredTo(p)){
+//            nearest_right = current_node.value;
+//        }
+//
+////        if (in_left){
+////            RectHV current_rect = new RectHV()
+////            if (current_node.left == null){
+////                return nearest_point;
+////            }
+////            nearest_point = nearest_recursive(p, current_node.left, nearest_point);
+////        } else {
+////            if (current_node.right == null){
+////                return nearest_point;
+////            }
+////            nearest_point = nearest_recursive(p, current_node.right, nearest_point);
+////        }
+////        if (current_node.parent == null) {
+////            nearest_point = nearest_recursive(p, current_node.right, nearest_point);
+////        }
+//        return nearest_point;
     }
 
     /*******************************************************************************
@@ -337,10 +344,10 @@ public class KdTree {
         StdOut.println(our_kd_tree.contains(point_to_find));
         StdOut.println(our_kd_tree.size());
 
-        RectHV my_rectangle = new RectHV(0.2, 0.2, 0.4, 0.6);
+        RectHV my_rectangle = new RectHV(0.60, 0.3, 0.99, 0.48);
         Iterable<Point2D> my_square_points = our_kd_tree.range(my_rectangle);
 
-        Point2D test_point = new Point2D(0.1, 0.1);
+        Point2D test_point = new Point2D(0.11, 0.24);
         Point2D fancy_point = our_kd_tree.nearest(test_point);
         StdOut.println(fancy_point);
 
