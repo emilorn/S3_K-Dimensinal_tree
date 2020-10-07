@@ -154,9 +154,7 @@ public class KdTree {
                         if(current_node.value.y() > shortest_distance){
                             bottom = nearest_y;
                         }
-
                     }
-
                     else if (current_node == current_node.parent.right){
 
                         if(current_node.value.x() == 0.69){
@@ -183,7 +181,6 @@ public class KdTree {
                     StdDraw.line(current_node.value.x(), bottom, current_node.value.x(), top);
 
                 }
-
                 else {
                     StdDraw.setPenColor(StdDraw.BLUE);
                     if (current_node == current_node.parent.right) {
@@ -206,7 +203,6 @@ public class KdTree {
                         if(1 - current_node.value.x() > shortest_distance){
                             right = nearest_x;
                         }
-
                     }
                     else if (current_node == current_node.parent.left) {
                         if(current_node.value.x() == 0.5){
@@ -285,7 +281,66 @@ public class KdTree {
 
 
     // a nearest neighbor in the set to p; null if set is empty
-    public Point2D nearest(Point2D point) {
+
+
+    public Point2D nearest(Point2D point){
+
+/*        Nearest_node = root
+        Recur(root.right,nearest_node, destination)
+        Recur(root.left, nearest_node, destination)
+
+
+        Recur(current_node, nearest_node, destination)
+
+        Check left og right fyrir nearest node
+                (measure both, find nearer)
+
+        Is destination in left or right? Above or below?
+                Recur node.left if left of y or below x
+        Recur node.right if right of y or above x*/
+
+        Point2D left = nearest2_recursive(root.left, root, point);
+        Point2D right = nearest2_recursive(root.right, root, point);
+
+        if(left.distanceSquaredTo(point) < right.distanceSquaredTo(point)){
+            return left;
+        }else{
+            return right;
+        }
+    }
+
+    private Point2D nearest2_recursive(Node current_node, Node nearest_node, Point2D destination){
+        if(current_node != null){
+            if(current_node.right != null
+                    && current_node.right.value.distanceSquaredTo(destination) < nearest_node.value.distanceSquaredTo(destination)){
+                nearest_node = current_node.right;
+            }
+            if(current_node.left != null
+                    && current_node.left.value.distanceSquaredTo(destination) < nearest_node.value.distanceSquaredTo(destination)){
+                nearest_node = current_node.left;
+            }
+            if(current_node.vertical){
+                if(destination.x() < current_node.value.x()){
+                    return nearest2_recursive(current_node.left, nearest_node, destination);
+                }
+                else{
+                    return nearest2_recursive(current_node.right, nearest_node, destination);
+                }
+            }else {
+                if(destination.y() < current_node.value.y()){
+                    return nearest2_recursive(current_node.left, nearest_node, destination);
+                }else{
+                    return nearest2_recursive(current_node.right, nearest_node, destination);
+                }
+            }
+        }else{
+            return nearest_node.value;
+        }
+    }
+
+
+
+    public Point2D nearest2(Point2D point) {
         return nearest_recursive(point, root, true, root.value);
     }
 
@@ -340,7 +395,7 @@ public class KdTree {
         RectHV my_rectangle = new RectHV(0.2, 0.2, 0.4, 0.6);
         Iterable<Point2D> my_square_points = our_kd_tree.range(my_rectangle);
 
-        Point2D test_point = new Point2D(0.1, 0.1);
+        Point2D test_point = new Point2D(0.85, 0.4);
         Point2D fancy_point = our_kd_tree.nearest(test_point);
         StdOut.println(fancy_point);
 

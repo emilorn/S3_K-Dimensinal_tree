@@ -101,9 +101,9 @@ public class PointSET {
         RectHV my_rectangle = new RectHV(0.3, 0.8, 1.0, 1.0);
         Iterable<Point2D> my_square_points = our_point_set.range(my_rectangle);
 
-        Point2D test_point = new Point2D(2.2, 3.0);
+        Point2D test_point = new Point2D(0.85, 0.4);
         Point2D fancy_point = our_point_set.nearest(test_point);
-        StdOut.println();
+        StdOut.println(fancy_point);
 
         our_point_set.draw();
     }
