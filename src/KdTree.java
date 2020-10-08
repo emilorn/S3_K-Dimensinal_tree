@@ -110,9 +110,9 @@ public class KdTree {
     }
 
     // draw all of the points to standard draw
-    public void draw() {
+    public void draw2() {
 
-        StdDraw.setCanvasSize(800,800);
+        StdDraw.setCanvasSize(1000,1000);
         StdDraw.setXscale(-0.05, 1.05);
         StdDraw.setYscale(-0.05, 1.05);
         StdDraw.rectangle(0.5,0.5,0.5,0.5);
@@ -122,10 +122,10 @@ public class KdTree {
         StdDraw.setFont(font);
 //        StdDraw.setPenColor(StdDraw.RED);
 //        StdDraw.line(root.value.x(), 0, root.value.x(), 1);
-        draw(root);
+        draw_recur2(root);
     }
 
-    private void draw(Node current_node){
+    private void draw_recur2(Node current_node){
         double top = 1.0;
         double bottom = 0.0;
         double left = 0.0;
@@ -146,7 +146,7 @@ public class KdTree {
                         double nearest_y = 1;
                         while (next != null){
                             if (!next.vertical && shortest_distance > Math.abs(next.value.y() - current_node.value.y())
-                            && next.value.y() < current_node.value.y()){
+                                    && next.value.y() < current_node.value.y()){
                                 shortest_distance = Math.abs(next.value.y() - current_node.value.y());
                                 nearest_y = next.value.y();
                             }
@@ -173,7 +173,7 @@ public class KdTree {
                             next = next.parent;
                         }
                     }
-                    StdDraw.line(current_node.value.x(), bottom, current_node.value.x(), top);
+                    StdDraw.line(current_node.value.x(), top, current_node.value.x(), bottom);
                 }
                 else {
                     StdDraw.setPenColor(StdDraw.BLUE);
@@ -201,7 +201,7 @@ public class KdTree {
                         double nearest_x = 1;
                         while (next != null){
                             if (next.vertical && shortest_distance > Math.abs(next.value.x() - current_node.value.x())
-                            && next.value.x() <= current_node.value.x()){
+                                    && next.value.x() <= current_node.value.x()){
                                 shortest_distance = Math.abs(next.value.x() - current_node.value.x());
                                 nearest_x = next.value.x();
                             }
@@ -213,16 +213,16 @@ public class KdTree {
                     }
                     StdDraw.line(left, current_node.value.y(), right, current_node.value.y());
 
-                        }
-                    }
+                }
+            }
             else{
                 StdDraw.setPenColor(StdDraw.RED);
                 StdDraw.line(root.value.x(), 0, root.value.x(), 1);
             }
-            draw(current_node.left);
-            draw(current_node.right);
-                }
-            }
+            draw_recur2(current_node.left);
+            draw_recur2(current_node.right);
+        }
+    }
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
@@ -265,6 +265,37 @@ public class KdTree {
         return points_in_rectangle;
     }
 
+    public void draw() {
+        StdDraw.setCanvasSize(1000,1000);
+        StdDraw.setXscale(-0.05, 1.05);
+        StdDraw.setYscale(-0.05, 1.05);
+        StdDraw.rectangle(0.5,0.5,0.5,0.5);
+        RectHV root_rect = new RectHV(0, 0, 1, 1);
+        draw_recur(root, root_rect);
+    }
+    private void draw_recur(Node current_node, RectHV parent_rect){
+        if(current_node != null){
+            StdDraw.setPenColor(StdDraw.BLACK);
+            StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
+            StdDraw.setPenRadius(0.01);
+            StdDraw.point(current_node.value.x(), current_node.value.y());
+//            StdDraw.circle(current_node.value.x(), current_node.value.y(), .007);
+            StdDraw.setPenRadius();
+
+            if(current_node.vertical){
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.line(current_node.value.x(), parent_rect.ymin(), current_node.value.x(), parent_rect.ymax());
+            }
+            else{
+                StdDraw.setPenColor(StdDraw.BLUE);
+                StdDraw.line(parent_rect.xmin(), current_node.value.y(), parent_rect.xmax(), current_node.value.y());
+            }
+
+            draw_recur(current_node.left, get_point_rect(current_node.left, parent_rect));
+            draw_recur(current_node.right, get_point_rect(current_node.right, parent_rect));
+        }
+    }
+
 
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D point){
@@ -275,6 +306,7 @@ public class KdTree {
 
     private Node nearest(Node current_node, Node nearest_node, Point2D destination, RectHV parent_rect) {
         if (current_node != null) {
+
             RectHV new_rect = get_point_rect(current_node, parent_rect);
 
             if (current_node.value.distanceSquaredTo(destination) < nearest_node.value.distanceSquaredTo(destination)){
@@ -283,7 +315,7 @@ public class KdTree {
             if (new_rect.distanceSquaredTo(destination) <= nearest_node.value.distanceSquaredTo(destination)) {
                 Node left = nearest(current_node.left, nearest_node, destination, new_rect);
                 Node right = nearest(current_node.right, nearest_node, destination, new_rect);
-                if (left.value.distanceSquaredTo(destination) < right.value.distanceSquaredTo(destination)){
+                if (left.value.distanceSquaredTo(destination) <= right.value.distanceSquaredTo(destination)){
                     nearest_node = left;
                 } else {
                     nearest_node = right;
@@ -301,6 +333,9 @@ public class KdTree {
         double rect_y_min;
         double rect_y_max;
         if (node == root){
+            return parent_rect;
+        }
+        if(node == null){
             return parent_rect;
         }
         if(node.vertical){
@@ -355,14 +390,21 @@ public class KdTree {
 //        RectHV my_rectangle = new RectHV(0.748046875, 0.275390625, 0.96484375, 0.525390625);
         Iterable<Point2D> my_square_points = our_kd_tree.range(my_rectangle);
 
-        Point2D test_point = new Point2D(0.525390625, 0.50390625);
+        Point2D test_point = new Point2D(0.712, 0.85);
         Point2D fancy_point = our_kd_tree.nearest(test_point);
         StdOut.println(fancy_point);
+        StdOut.println(new Point2D(0.706, 0.857).distanceSquaredTo(new Point2D(0.712, 0.85))*1000);
+        StdOut.println(new Point2D(0.714, 0.859).distanceSquaredTo(new Point2D(0.712, 0.85))*1000);
 
 
         StdOut.println("Draw test begins here");
         our_kd_tree.draw();
+//        StdOut.println(our_kd_tree.range(new RectHV(0.2376 ,0.7936 ,0.3876 ,0.9436)));
+//        StdOut.println(our_kd_tree.range(new RectHV(0.0344, 0.0112 ,0.1844 ,0.1612)));
+
     }
+
+
 
 //    public static void main(String[] args) {
 //        In in = new In();
