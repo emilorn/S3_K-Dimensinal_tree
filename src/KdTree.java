@@ -47,31 +47,35 @@ public class KdTree {
             insert_into_position(point);
         } else {
             root = new Node(point, null, true);
+            size++;
         }
-        size++;
     }
 
     private void insert_into_position(Point2D point) {
-        Node next_node = root;
+        Node current_node = root;
         Node prev_node = null;
         boolean vertical = true;
         boolean left = true;
 
-        while (next_node != null){
-            prev_node = next_node;
+        while (current_node != null){
+            if (current_node.value.x() == point.x() && current_node.value.y() == point.y()){
+                return;
+            }
+            prev_node = current_node;
             if (vertical) {
-                left = point.x() < next_node.value.x();
+                left = point.x() < current_node.value.x();
                 vertical = false;
             } else {
-                left = point.y() < next_node.value.y();
+                left = point.y() < current_node.value.y();
                 vertical = true;
             }
             if (left) {
-                next_node = next_node.left;
+                current_node = current_node.left;
             } else {
-                next_node = next_node.right;
+                current_node = current_node.right;
             }
         }
+        size++;
         if (left){
             prev_node.left = new Node(point, prev_node, vertical);
         } else {
@@ -222,38 +226,41 @@ public class KdTree {
 
     // all points in the set that are inside the rectangle
     public Iterable<Point2D> range(RectHV rect) {
+        RectHV root_rect = new RectHV(0, 0, 1, 1);
         SET<Point2D> points_in_rectangle = new SET<>();
-        return range(points_in_rectangle, rect, root);
+        return range(points_in_rectangle, rect, root, root_rect);
     }
 
-    private SET<Point2D> range(SET<Point2D> points_in_rectangle, RectHV rect, Node current_node){
+    private SET<Point2D> range(SET<Point2D> points_in_rectangle, RectHV rect, Node current_node, RectHV parent_rect){
 
         boolean in_left, in_right, both;
 
-        if (current_node == null){
-            return points_in_rectangle;
-        }
+        if (current_node != null){
+            RectHV new_rect = get_point_rect(current_node, parent_rect);
 
-        if (rect.contains(current_node.value)){
-            points_in_rectangle.add(current_node.value);
-        }
-            both = rect.distanceSquaredTo(current_node.value) == 0;
-            if (both) { in_left = in_right = true; }
+            if (rect.contains(current_node.value)){
+                points_in_rectangle.add(current_node.value);
+            }
+            both = rect.intersects(new_rect);
+            if (both) {
+                in_left = in_right = true;
+            }
             else {
                 if (current_node.vertical) {
                     in_left = rect.xmax() < current_node.value.x();
                     in_right = rect.xmin() > current_node.value.x();
                 } else {
-                    in_left = rect.ymax() < current_node.value.x();
-                    in_right = rect.ymin() > current_node.value.x();
+                    in_left = rect.ymax() < current_node.value.y();
+                    in_right = rect.ymin() > current_node.value.y();
                 }
             }
 
-        if (in_left){
-            points_in_rectangle = range(points_in_rectangle, rect, current_node.left);
-        }
-        if (in_right){
-            points_in_rectangle = range(points_in_rectangle, rect, current_node.right);
+            if (in_left){
+                points_in_rectangle = range(points_in_rectangle, rect, current_node.left, parent_rect);
+            }
+            if (in_right){
+                points_in_rectangle = range(points_in_rectangle, rect, current_node.right, parent_rect);
+            }
         }
         return points_in_rectangle;
     }
@@ -262,11 +269,11 @@ public class KdTree {
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D point){
         RectHV root_rect = new RectHV(0, 0, 1, 1);
-        Node nearest_node = nearest(root, root, root_rect, point, root_rect);
+        Node nearest_node = nearest(root, root, point, root_rect);
         return nearest_node.value;
     }
 
-    private Node nearest(Node current_node, Node nearest_node, RectHV nearest_rect, Point2D destination, RectHV parent_rect) {
+    private Node nearest(Node current_node, Node nearest_node, Point2D destination, RectHV parent_rect) {
         if (current_node != null) {
             RectHV new_rect = get_point_rect(current_node, parent_rect);
 
@@ -274,8 +281,8 @@ public class KdTree {
                 nearest_node = current_node;
             }
             if (new_rect.distanceSquaredTo(destination) <= nearest_node.value.distanceSquaredTo(destination)) {
-                Node left = nearest(current_node.left, nearest_node, nearest_rect, destination, new_rect);
-                Node right = nearest(current_node.right, nearest_node, nearest_rect, destination, new_rect);
+                Node left = nearest(current_node.left, nearest_node, destination, new_rect);
+                Node right = nearest(current_node.right, nearest_node, destination, new_rect);
                 if (left.value.distanceSquaredTo(destination) < right.value.distanceSquaredTo(destination)){
                     nearest_node = left;
                 } else {
@@ -344,7 +351,8 @@ public class KdTree {
         StdOut.println(our_kd_tree.contains(point_to_find));
         StdOut.println(our_kd_tree.size());
 
-        RectHV my_rectangle = new RectHV(0.2, 0.2, 0.4, 0.6);
+        RectHV my_rectangle = new RectHV(0.6328125, 0.779296875, 0.71484375, 0.869140625);
+//        RectHV my_rectangle = new RectHV(0.748046875, 0.275390625, 0.96484375, 0.525390625);
         Iterable<Point2D> my_square_points = our_kd_tree.range(my_rectangle);
 
         Point2D test_point = new Point2D(0.525390625, 0.50390625);
