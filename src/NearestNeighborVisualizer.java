@@ -27,6 +27,7 @@ public class NearestNeighborVisualizer {
         // initialize the two data structures with point from standard input
         PointSET brute = new PointSET();
         KdTree kdtree = new KdTree();
+        in.readInt();
         for (int i = 0; !in.isEmpty(); i++) {
             double x = in.readDouble();
             double y = in.readDouble();
