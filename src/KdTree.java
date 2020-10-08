@@ -276,7 +276,7 @@ public class KdTree {
     private void draw_recur(Node current_node, RectHV parent_rect){
         if(current_node != null){
             StdDraw.setPenColor(StdDraw.BLACK);
-            StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
+            //StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
             StdDraw.setPenRadius(0.01);
             StdDraw.point(current_node.value.x(), current_node.value.y());
 //            StdDraw.circle(current_node.value.x(), current_node.value.y(), .007);
@@ -372,17 +372,38 @@ public class KdTree {
      * Test client
      ******************************************************************************/
     public static void main(String[] args) {
-        In input = new In(args[0]);
-        KdTree our_kd_tree = new KdTree();
+        int N = 50;
+        int T = 1;
+        double[] timeArr = new double[T];
+        KdTree our_kd_tree;
+        for (int i = 0; i < timeArr.length; i++){
+            our_kd_tree = new KdTree();
+            Point2D[] point_arr = new Point2D[N];
+            for (int j = 0; j < N; j++){
+                double x = StdRandom.uniform();
+                double y = StdRandom.uniform();
+                point_arr[j] = new Point2D(x, y);
+            }
+            Stopwatch watch = new Stopwatch();
+            for (int j = 0; j < point_arr.length; j++){
+                our_kd_tree.insert(point_arr[j]);
+            }
+            timeArr[i] = watch.elapsedTime();
+            our_kd_tree.draw();
+        }
+
+        double timeMean = StdStats.mean(timeArr);
+        StdOut.println("Building tree of "+N+" Size took "+timeMean+" seconds");
+        /*In input = new In(args[0]);
         int number_of_lines = input.readInt();
         for(int i = 0; i < number_of_lines; i++){
             double x = input.readDouble();
             double y = input.readDouble();
             Point2D point = new Point2D(x,y);
             our_kd_tree.insert(point);
-        }
+        }*/
 
-        Point2D point_to_find = new Point2D(0.2,	0.8);
+        /*Point2D point_to_find = new Point2D(0.2,	0.8);
         StdOut.println(our_kd_tree.contains(point_to_find));
         StdOut.println(our_kd_tree.size());
 
@@ -394,11 +415,11 @@ public class KdTree {
         Point2D fancy_point = our_kd_tree.nearest(test_point);
         StdOut.println(fancy_point);
         StdOut.println(new Point2D(0.706, 0.857).distanceSquaredTo(new Point2D(0.712, 0.85))*1000);
-        StdOut.println(new Point2D(0.714, 0.859).distanceSquaredTo(new Point2D(0.712, 0.85))*1000);
+        StdOut.println(new Point2D(0.714, 0.859).distanceSquaredTo(new Point2D(0.712, 0.85))*1000);*/
 
 
-        StdOut.println("Draw test begins here");
-        our_kd_tree.draw();
+        //StdOut.println("Draw test begins here");
+
 //        StdOut.println(our_kd_tree.range(new RectHV(0.2376 ,0.7936 ,0.3876 ,0.9436)));
 //        StdOut.println(our_kd_tree.range(new RectHV(0.0344, 0.0112 ,0.1844 ,0.1612)));
 
