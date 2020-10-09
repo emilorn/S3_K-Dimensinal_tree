@@ -112,6 +112,37 @@ public class KdTree {
     }
 
     // draw all of the points to standard draw
+    public void draw() {
+        StdDraw.setCanvasSize(1000,1000);
+        StdDraw.setXscale(-0.05, 1.05);
+        StdDraw.setYscale(-0.05, 1.05);
+        StdDraw.rectangle(0.5,0.5,0.5,0.5);
+        RectHV root_rect = new RectHV(0, 0, 1, 1);
+        draw_recur(root, root_rect);
+    }
+    private void draw_recur(Node current_node, RectHV parent_rect){
+        if(current_node != null){
+            StdDraw.setPenColor(StdDraw.BLACK);
+            //StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
+            StdDraw.setPenRadius(0.01);
+            StdDraw.point(current_node.value.x(), current_node.value.y());
+//            StdDraw.circle(current_node.value.x(), current_node.value.y(), .007);
+            StdDraw.setPenRadius();
+
+            if(current_node.vertical){
+                StdDraw.setPenColor(StdDraw.RED);
+                StdDraw.line(current_node.value.x(), parent_rect.ymin(), current_node.value.x(), parent_rect.ymax());
+            }
+            else{
+                StdDraw.setPenColor(StdDraw.BLUE);
+                StdDraw.line(parent_rect.xmin(), current_node.value.y(), parent_rect.xmax(), current_node.value.y());
+            }
+
+            draw_recur(current_node.left, get_point_rect(current_node.left, parent_rect));
+            draw_recur(current_node.right, get_point_rect(current_node.right, parent_rect));
+        }
+    }
+
     public void draw2() {
 
         StdDraw.setCanvasSize(1000,1000);
@@ -266,38 +297,6 @@ public class KdTree {
         }
         return points_in_rectangle;
     }
-
-    public void draw() {
-        StdDraw.setCanvasSize(1000,1000);
-        StdDraw.setXscale(-0.05, 1.05);
-        StdDraw.setYscale(-0.05, 1.05);
-        StdDraw.rectangle(0.5,0.5,0.5,0.5);
-        RectHV root_rect = new RectHV(0, 0, 1, 1);
-        draw_recur(root, root_rect);
-    }
-    private void draw_recur(Node current_node, RectHV parent_rect){
-        if(current_node != null){
-            StdDraw.setPenColor(StdDraw.BLACK);
-            //StdDraw.textLeft(current_node.value.x()+0.01, current_node.value.y()+0.02, current_node.value.toString());
-            StdDraw.setPenRadius(0.01);
-            StdDraw.point(current_node.value.x(), current_node.value.y());
-//            StdDraw.circle(current_node.value.x(), current_node.value.y(), .007);
-            StdDraw.setPenRadius();
-
-            if(current_node.vertical){
-                StdDraw.setPenColor(StdDraw.RED);
-                StdDraw.line(current_node.value.x(), parent_rect.ymin(), current_node.value.x(), parent_rect.ymax());
-            }
-            else{
-                StdDraw.setPenColor(StdDraw.BLUE);
-                StdDraw.line(parent_rect.xmin(), current_node.value.y(), parent_rect.xmax(), current_node.value.y());
-            }
-
-            draw_recur(current_node.left, get_point_rect(current_node.left, parent_rect));
-            draw_recur(current_node.right, get_point_rect(current_node.right, parent_rect));
-        }
-    }
-
 
     // a nearest neighbor in the set to p; null if set is empty
     public Point2D nearest(Point2D point){
