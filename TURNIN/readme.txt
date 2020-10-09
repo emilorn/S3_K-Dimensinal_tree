@@ -104,6 +104,12 @@ Partner section instructor: Einar Helgi Guðmundsson
  *  points or to read them in from standard input.)
  **********************************************************************/
 
+    Expected running time in seconds is ~N*log(N).
+    This is because it should only take each insert an average of log(N) time to find its correct place due to the
+    nature of binary trees.
+    The running time is not higher because we do not create a rectangle for every point that is inserted.
+    This running time is supported by table 1.
+
 	+--------------------------------------+
 	| Table 1: Time comparison in seconds  |
 	+--+--+--+--+--+--+--+--+--+--+--+--+--+
