@@ -84,83 +84,37 @@ public class PointSET {
         return closest_point;
     }
 
+    public static void count_nearest(String[] args, int n){
+        In input = new In(args[0]);
+        int N = n;
+        Point2D[] point_arr = new Point2D[N];
+        PointSET new_point_set = new PointSET();
+
+        for(int i = 0; !input.isEmpty(); i++){
+            double x = input.readDouble();
+            double y = input.readDouble();
+            point_arr[i] = new Point2D(x,y);
+        }
+        for (Point2D point2D : point_arr) {
+            new_point_set.insert(point2D);
+        }
+
+        int counter = 0;
+        Stopwatch OneSecond = new Stopwatch();
+        while (OneSecond.elapsedTime() < 1){
+            new_point_set.nearest(new Point2D(StdRandom.uniform(), StdRandom.uniform()));
+            counter++;
+        }
+        StdOut.println(counter);
+    }
 
     //********************** Main here ****************************************
 
-/*    public static void main(String[] args) {
-        In input = new In(args[0]);
-        PointSET our_point_set = new PointSET();
-        int number_of_lines = input.readInt();
-        for(int i = 0; i < number_of_lines; i++){
-            double x = input.readDouble();
-            double y = input.readDouble();
-            Point2D point = new Point2D(x,y);
-            our_point_set.insert(point);
-        }
-
-        RectHV my_rectangle = new RectHV(0.3, 0.8, 1.0, 1.0);
-        Iterable<Point2D> my_square_points = our_point_set.range(my_rectangle);
-
-        Point2D test_point = new Point2D(0.525390625, 0.50390625);
-        Point2D fancy_point = our_point_set.nearest(test_point);
-        StdOut.println(fancy_point);
-
-        our_point_set.draw();
-    }*/
-
     public static void main(String[] args) {
-        In in = new In(args[0]);
-        Out out = new Out();
-        StdOut.println("WTF"+args[0]);
-        int nrOfRecangles = in.readInt();
-        int nrOfPointsCont = in.readInt();
-        int nrOfPointsNear = in.readInt();
-        RectHV[] rectangles = new RectHV[nrOfRecangles];
-        Point2D[] pointsCont = new Point2D[nrOfPointsCont];
-        Point2D[] pointsNear = new Point2D[nrOfPointsNear];
-        for (int i = 0; i < nrOfRecangles; i++) {
-            rectangles[i] = new RectHV(in.readDouble(), in.readDouble(),
-                    in.readDouble(), in.readDouble());
+        int n = 100000;
+        int t = 100;
+        for (int i = 0; i < t; i++){
+            PointSET.count_nearest(args, n);
         }
-        for (int i = 0; i < nrOfPointsCont; i++) {
-            pointsCont[i] = new Point2D(in.readDouble(), in.readDouble());
-        }
-        for (int i = 0; i < nrOfPointsNear; i++) {
-            pointsNear[i] = new Point2D(in.readDouble(), in.readDouble());
-        }
-        PointSET set = new PointSET();
-        for (int i = 0; !in.isEmpty(); i++) {
-            double x = in.readDouble(), y = in.readDouble();
-            set.insert(new Point2D(x, y));
-        }
-        for (int i = 0; i < nrOfRecangles; i++) {
-            // Query on rectangle i, sort the result, and print
-            Iterable<Point2D> ptset = set.range(rectangles[i]);
-            int ptcount = 0;
-            for (Point2D p : ptset)
-                ptcount++;
-            Point2D[] ptarr = new Point2D[ptcount];
-            int j = 0;
-            for (Point2D p : ptset) {
-                ptarr[j] = p;
-                j++;
-            }
-            Arrays.sort(ptarr);
-            out.println("Inside rectangle " + (i + 1) + ":");
-            for (j = 0; j < ptcount; j++)
-                out.println(ptarr[j]);
-        }
-        out.println("Contain test:");
-        for (int i = 0; i < nrOfPointsCont; i++) {
-            out.println((i + 1) + ": " + set.contains(pointsCont[i]));
-        }
-
-        out.println("Nearest test:");
-        for (int i = 0; i < nrOfPointsNear; i++) {
-            out.println((i + 1) + ": " + set.nearest(pointsNear[i]));
-        }
-
-        out.println();
     }
-
 }

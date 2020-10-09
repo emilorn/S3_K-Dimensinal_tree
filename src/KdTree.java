@@ -6,6 +6,8 @@ import edu.princeton.cs.algs4.*;
 
 import java.awt.*;
 
+
+
 public class KdTree {
 
     private static class Node {
@@ -368,12 +370,33 @@ public class KdTree {
         return new RectHV(rect_x_min, rect_y_min, rect_x_max, rect_y_max);
     }
 
-    /*******************************************************************************
-     * Test client
-     ******************************************************************************/
-    public static void main(String[] args) {
-        int N = 50;
-        int T = 1;
+    public static void count_nearest(String[] args, int n){
+        In input = new In(args[0]);
+        int N = n;
+        Point2D[] point_arr = new Point2D[N];
+        KdTree new_tree = new KdTree();
+
+        for(int i = 0; !input.isEmpty(); i++){
+            double x = input.readDouble();
+            double y = input.readDouble();
+            point_arr[i] = new Point2D(x,y);
+        }
+        for (Point2D point2D : point_arr) {
+            new_tree.insert(point2D);
+        }
+
+        int counter = 0;
+        Stopwatch OneSecond = new Stopwatch();
+        while (OneSecond.elapsedTime() < 1){
+            new_tree.nearest(new Point2D(StdRandom.uniform(), StdRandom.uniform()));
+            counter++;
+        }
+        StdOut.println(counter);
+    }
+
+    public static void build_tree(int n, int t){
+        int N = n;
+        int T = t;
         double[] timeArr = new double[T];
         KdTree our_kd_tree;
         for (int i = 0; i < timeArr.length; i++){
@@ -389,97 +412,23 @@ public class KdTree {
                 our_kd_tree.insert(point_arr[j]);
             }
             timeArr[i] = watch.elapsedTime();
-            our_kd_tree.draw();
         }
-
         double timeMean = StdStats.mean(timeArr);
         StdOut.println("Building tree of "+N+" Size took "+timeMean+" seconds");
-        /*In input = new In(args[0]);
-        int number_of_lines = input.readInt();
-        for(int i = 0; i < number_of_lines; i++){
-            double x = input.readDouble();
-            double y = input.readDouble();
-            Point2D point = new Point2D(x,y);
-            our_kd_tree.insert(point);
-        }*/
-
-        /*Point2D point_to_find = new Point2D(0.2,	0.8);
-        StdOut.println(our_kd_tree.contains(point_to_find));
-        StdOut.println(our_kd_tree.size());
-
-        RectHV my_rectangle = new RectHV(0.6328125, 0.779296875, 0.71484375, 0.869140625);
-//        RectHV my_rectangle = new RectHV(0.748046875, 0.275390625, 0.96484375, 0.525390625);
-        Iterable<Point2D> my_square_points = our_kd_tree.range(my_rectangle);
-
-        Point2D test_point = new Point2D(0.712, 0.85);
-        Point2D fancy_point = our_kd_tree.nearest(test_point);
-        StdOut.println(fancy_point);
-        StdOut.println(new Point2D(0.706, 0.857).distanceSquaredTo(new Point2D(0.712, 0.85))*1000);
-        StdOut.println(new Point2D(0.714, 0.859).distanceSquaredTo(new Point2D(0.712, 0.85))*1000);*/
-
-
-        //StdOut.println("Draw test begins here");
-
-//        StdOut.println(our_kd_tree.range(new RectHV(0.2376 ,0.7936 ,0.3876 ,0.9436)));
-//        StdOut.println(our_kd_tree.range(new RectHV(0.0344, 0.0112 ,0.1844 ,0.1612)));
-
     }
 
 
 
-//    public static void main(String[] args) {
-//        In in = new In();
-//        Out out = new Out();
-//        int nrOfRecangles = in.readInt();
-//        int nrOfPointsCont = in.readInt();
-//        int nrOfPointsNear = in.readInt();
-//        RectHV[] rectangles = new RectHV[nrOfRecangles];
-//        Point2D[] pointsCont = new Point2D[nrOfPointsCont];
-//        Point2D[] pointsNear = new Point2D[nrOfPointsNear];
-//        for (int i = 0; i < nrOfRecangles; i++) {
-//            rectangles[i] = new RectHV(in.readDouble(), in.readDouble(),
-//                    in.readDouble(), in.readDouble());
-//        }
-//        for (int i = 0; i < nrOfPointsCont; i++) {
-//            pointsCont[i] = new Point2D(in.readDouble(), in.readDouble());
-//        }
-//        for (int i = 0; i < nrOfPointsNear; i++) {
-//            pointsNear[i] = new Point2D(in.readDouble(), in.readDouble());
-//        }
-//
-//
-//        KdTree set = new KdTree();
-//        for (int i = 0; !in.isEmpty(); i++) {
-//            double x = in.readDouble(), y = in.readDouble();
-//            set.insert(new Point2D(x, y));
-//        }
-//        for (int i = 0; i < nrOfRecangles; i++) {
-//            // Query on rectangle i, sort the result, and print
-//            Iterable<Point2D> ptset = set.range(rectangles[i]);
-//            int ptcount = 0;
-//            for (Point2D p : ptset)
-//                ptcount++;
-//            Point2D[] ptarr = new Point2D[ptcount];
-//            int j = 0;
-//            for (Point2D p : ptset) {
-//                ptarr[j] = p;
-//                j++;
-//            }
-//            Arrays.sort(ptarr);
-//            out.println("Inside rectangle " + (i + 1) + ":");
-//            for (j = 0; j < ptcount; j++)
-//                out.println(ptarr[j]);
-//        }
-//        out.println("Contain test:");
-//        for (int i = 0; i < nrOfPointsCont; i++) {
-//            out.println((i + 1) + ": " + set.contains(pointsCont[i]));
-//        }
-//
-//        out.println("Nearest test:");
-//        for (int i = 0; i < nrOfPointsNear; i++) {
-//            out.println((i + 1) + ": " + set.nearest(pointsNear[i]));
-//        }
-//
-//        out.println();
-//    }
+    /*******************************************************************************
+     * Test client
+     ******************************************************************************/
+
+    public static void main(String[] args) {
+        int n = 1000000;
+        int t = 100;
+        for (int i = 0; i < t; i++){
+            KdTree.count_nearest(args, n);
+        }
+        KdTree.build_tree(n, t);
+    }
 }
